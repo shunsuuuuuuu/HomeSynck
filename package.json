@@ -1,0 +1,24 @@
+{
+  "name": "homesynck",
+  "version": "1.0.0",
+  "description": "SUUMOのWebページからスクレイピングで不動産情報を取得し、構造化データに変換するツールです。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shunsuuuuuuu/HomeSynck.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shunsuuuuuuu/HomeSynck/issues"
+  },
+  "homepage": "https://github.com/shunsuuuuuuu/HomeSynck#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
+  }
+}
