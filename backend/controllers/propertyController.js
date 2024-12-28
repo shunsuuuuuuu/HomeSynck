@@ -29,20 +29,20 @@ exports.fetchAndSavePropertyData = async (req, res) => {
         // Pythonスクリプトを実行して物件データを取得
         const python = exec('python3 ./pycode/test.py', (error, stdout, stderr) => {
             console.log("Run python")
-            // if (error) {
-            //     console.error(`Error executing Python script: ${error.message}`);
-            //     return res.status(500).json({ success: false, message: 'Pythonスクリプトの実行に失敗しました' });
-            // }
+            if (error) {
+                console.error(`Error executing Python script: ${error.message}`);
+                return res.status(500).json({ success: false, message: 'Pythonスクリプトの実行に失敗しました' });
+            }
 
-            // if (stderr) {
-            //     console.error(`Python script stderr: ${stderr}`);
-            //     return res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
-            // }
+            if (stderr) {
+                console.error(`Python script stderr: ${stderr}`);
+                return res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
+            }
 
             // // Pythonスクリプトからの標準出力をJSONとしてパース
             const properties = JSON.parse(stdout);
+            res.json({ success: true, properties });
 
-            console.log(properties)
             
             // // 物件データをMongoDBに挿入
             // Property.insertMany(properties, (err, docs) => {
@@ -50,7 +50,6 @@ exports.fetchAndSavePropertyData = async (req, res) => {
             //         console.error('MongoDBにデータの保存に失敗しました', err);
             //         return res.status(500).json({ success: false, message: 'MongoDBへのデータ保存に失敗しました' });
             //     }
-
             //     res.status(200).json({ success: true, message: '物件データが保存されました！', data: docs });
             // });
         });
