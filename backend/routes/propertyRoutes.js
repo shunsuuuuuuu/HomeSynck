@@ -3,7 +3,10 @@ const router = express.Router();
 const propertyController = require('../controllers/propertyController');
 
 // 物件データの取得
-router.get('/', propertyController.getAllProperties);
+router.get('/get-all', propertyController.getAllProperties);
+
+// 物件データの削除
+router.delete('/delete-all', propertyController.deleteAllProperties);
 
 // CSVデータのアップロード (必要に応じて)
 router.post('/upload', propertyController.uploadCSV);

@@ -1,26 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Property Data Fetch</title>
 </head>
+
 <body>
     <h1>物件データを取得して保存</h1>
     <button id="fetchDataBtn">物件データを取得して保存</button>
-
-    <script>
-        // ボタンクリックイベントの設定
-        document.getElementById('fetchDataBtn').addEventListener('click', async () => {
-            const response = await fetch('/api/properties/fetch-and-save');
-            const result = await response.json();
-
-            if (result.success) {
-                alert('物件データが保存されました！');
-            } else {
-                alert('エラー: ' + result.message);
-            }
-        });
-    </script>
+    <script src="js/get_property_btn.js"></script>
 </body>
+
 </html>
