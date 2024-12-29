@@ -65,7 +65,7 @@ exports.fetchAndSavePropertyData = async (req, res) => {
                 // 物件データをMongoDBに挿入
                 const docs = await Property.insertMany(properties);
                 const insertedProperties = await Property.find();
-                console.log('Inserted Properties:', insertedProperties);
+                console.log('Num of properties inserted:', insertedProperties.length);
                 res.status(200).json({ success: true, message: '物件データが保存されました！', data: docs });
             } catch (err) {
                 res.status(500).json({ success: false, message: 'MongoDBへのデータ保存に失敗しました' });

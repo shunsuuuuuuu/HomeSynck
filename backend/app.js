@@ -5,10 +5,6 @@ app.use(express.static('public'));
 const propertyRoutes = require('./routes/propertyRoutes');  // ルートのインポート
 app.use('/api/properties', propertyRoutes);  // APIルートの設定
 
-// モデルとコントローラーをインポート
-const propertyController = require('./controllers/propertyController');
-
-
 // ポート番号
 const PORT = 3000;
 

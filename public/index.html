@@ -5,11 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Property Data Fetch</title>
+    <style>
+        .property-item {
+            border: 1px solid #ddd;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 
 <body>
     <h1>物件データを取得して保存</h1>
     <button id="fetchDataBtn">物件データを取得して保存</button>
+    <button id="showPropertiesBtn">物件一覧を表示</button>
+
+    <h2>物件一覧</h2>
+    <div id="propertiesList"></div>
+
     <script src="js/get_property_btn.js"></script>
 </body>
 
