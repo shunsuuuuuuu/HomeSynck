@@ -2,7 +2,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     displayAllProperties();
     const fetchDataBtn = document.getElementById('fetchDataBtn');
-    const showPropertiesBtn = document.getElementById('showPropertiesBtn');
     const filterBtn = document.getElementById('filterBtn');
 
 
@@ -11,18 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch('/api/properties/fetch-and-save');
         const result = await response.json();
 
-        if (result.success) {
-            alert('物件データが保存されました！');
-        } else {
+        if (!result.success) {
             console.error('エラー:', result.message);
             alert('エラー: ' + result.message); // 詳細なエラーを表示
         }
 
-        displayAllProperties();
-    });
-
-    // ボタンクリック時で物件データを表示する処理
-    showPropertiesBtn.addEventListener('click', () => {
         displayAllProperties();
     });
 
@@ -66,21 +58,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // 物件データを表示する関数
     function displayPropertyList(properties) {
         const propertiesList = document.getElementById('propertiesList');
         propertiesList.innerHTML = '';
+
+        const table = document.createElement('table');
+        table.className = 'property-table';
+
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>物件名</th>
+                <th>家賃 (万円)</th>
+                <th>アクセス</th>
+                <th>築年数 (年)</th>
+                <th>面積 (m²)</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
         properties.forEach(property => {
-            const propertyElement = document.createElement('div');
-            propertyElement.className = 'property-item';
-            propertyElement.innerHTML = `
-                <h3>${property.name || '物件名なし'}</h3>
-                <p>家賃: ${property.rental_fee || '-'}万円</p>
-                <p>アクセス: ${property.access || '-'}</p>
-                <p>築年数: ${property.build_age || '-'}年</p>
-                <p>面積: ${property.floor_area || '-'}m²</p>
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${property.name || '物件名なし'}</td>
+                <td>${property.rental_fee || '-'}</td>
+                <td>${property.access || '-'}</td>
+                <td>${property.build_age || '-'}</td>
+                <td>${property.floor_area || '-'}</td>
             `;
-            propertiesList.appendChild(propertyElement);
+            tbody.appendChild(row);
         });
-    };
+        table.appendChild(tbody);
+
+        propertiesList.appendChild(table);
+    }
 });
