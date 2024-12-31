@@ -1,5 +1,10 @@
+# directory
 /venv/*
 /node_modules/*
 /result/*
+
+# file
+todo.md
+StudyNote.md
 
 *.pickle
