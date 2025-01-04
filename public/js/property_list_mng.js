@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     displayAllProperties();
     const fetchDataBtn = document.getElementById('fetchDataBtn');
     const filterBtn = document.getElementById('filterBtn');
+    const transferBtn = document.getElementById('calcDistanceBtn');
 
     // ボタンクリック時で物件データを更新する処理
     fetchDataBtn.addEventListener('click', async () => {
@@ -25,10 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ボタンクリック時で乗り換え情報を取得する処理
-    document.getElementById('calcDistanceBtn').addEventListener('click', async () => {
-        searchTransferInfo();
+    transferBtn.addEventListener('click', async () => {
+        const destStation = document.getElementById('destinationInput').value;
+
+        if (!destStation) {
+            alert('目的駅を入力してください');
+            return;
+        }
+        
         const filteredProperties = await getFilteredProperties();
-        displayPropertyList(filteredProperties);
+        searchTransferInfo(filteredProperties, destStation);
+        displayFilteredProperties();
     });
 
     // 物件データを表示する関数
