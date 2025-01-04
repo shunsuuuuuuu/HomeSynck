@@ -8,10 +8,10 @@ router.get('/get-all-properties', propertyController.getAllProperties);
 // 物件データの削除
 router.delete('/delete-all-properties', propertyController.deleteAllProperties);
 
-// CSVデータのアップロード (必要に応じて)
-router.post('/upload', propertyController.uploadCSV);
-
 // 物件データを取得して保存するルート
 router.get('/fetch-and-save', propertyController.fetchAndSavePropertyData);
+
+// 乗り換え情報を取得
+router.get('/get-transfer-info/:id/:address/:destStation', propertyController.getTransferInfo);
 
 module.exports = router;

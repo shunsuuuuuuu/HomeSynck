@@ -59,9 +59,16 @@
     </div>
 
     <h2>物件一覧</h2>
+    <!-- 目的地を文字で入力 -->
+    <div>
+        <label for="destinationInput">通勤先や通学先の駅名を入力してください。</label>
+    </div>
+    <input type="text" id="destinationInput" placeholder="目的地を入力">
+    <button id="calcDistanceBtn">通勤時間を計算</button>
     <div id="propertiesList"></div>
-
-    <script src="js/property_list_mng.js"></script>
+    
+    <script type="module" src="./js/property_list_mng.js"></script>
+    <script type="module" src="../js/search_transfer_info.js"></script>
 </body>
 
 </html>

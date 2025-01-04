@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const propertySchema = new mongoose.Schema({
+    id: { type: String, required: true }, // 物件ID
     name: { type: String, required: true }, // 名称
     category: { type: String, required: true }, // カテゴリ
     address: { type: String, required: true }, // アドレス
@@ -16,7 +17,11 @@ const propertySchema = new mongoose.Schema({
     monthly_fee: { type: Number, required: true }, // 月額費用
     deposit_fee: { type: Number, required: true }, // 敷金
     reward_fee: { type: Number, required: true }, // 礼金
-    floor_area: { type: Number, required: true } // 面積
+    floor_area: { type: Number, required: true }, // 面積
+    // 乗り換え情報
+    transfer_time: { type: Number, required: false }, // 所要時間 (分)
+    transfer_fare: { type: Number, required: false }, // 運賃
+    transfer_count: { type: Number, required: false } // 乗り換え回数
 });
 
 module.exports = mongoose.model('Property', propertySchema);

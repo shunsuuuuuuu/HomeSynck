@@ -1,9 +1,10 @@
+import { searchTransferInfo } from './search_transfer_info.js';
+
 // DOMContentLoadedイベントで呼び出し
 document.addEventListener('DOMContentLoaded', () => {
     displayAllProperties();
     const fetchDataBtn = document.getElementById('fetchDataBtn');
     const filterBtn = document.getElementById('filterBtn');
-
 
     // ボタンクリック時で物件データを更新する処理
     fetchDataBtn.addEventListener('click', async () => {
@@ -23,6 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
         displayFilteredProperties();
     });
 
+    // ボタンクリック時で乗り換え情報を取得する処理
+    document.getElementById('calcDistanceBtn').addEventListener('click', async () => {
+        searchTransferInfo();
+        const filteredProperties = await getFilteredProperties();
+        displayPropertyList(filteredProperties);
+    });
+
     // 物件データを表示する関数
     async function displayAllProperties() {
         const response = await fetch('/api/properties/get-all-properties');
@@ -32,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // フィルタリングされた物件データを表示する関数
     async function displayFilteredProperties() {
-        const properties = await getFilteredProperties();
-        displayPropertyList(properties);
+        const filteredProperties = await getFilteredProperties();
+        displayPropertyList(filteredProperties);
     }
 
     // 表示する物件データを抽出する関数
@@ -70,9 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <tr>
                 <th>物件名</th>
                 <th>家賃 (万円)</th>
+                <th>住所</th>
                 <th>アクセス</th>
                 <th>築年数 (年)</th>
                 <th>面積 (m²)</th>
+                <th class="highlight1-header">通勤時間</th>
+                <th class="highlight1-header">乗り換え回数</th>
             </tr>
         `;
         table.appendChild(thead);
@@ -83,9 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
             row.innerHTML = `
                 <td>${property.name || '物件名なし'}</td>
                 <td>${property.rental_fee || '-'}</td>
+                <td>${property.address || '-'}</td>
                 <td>${property.access || '-'}</td>
                 <td>${property.build_age || '-'}</td>
                 <td>${property.floor_area || '-'}</td>
+                <td class="highlight1">${property.transfer_time || '-'}</td>
+                <td class="highlight1">${property.transfer_count || '-'}</td>
             `;
             tbody.appendChild(row);
         });

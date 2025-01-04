@@ -29,3 +29,12 @@
     background-color: #f5f5f5;
     transition: background-color 0.3s ease;
 }
+
+
+th.highlight1-header {
+    background-color: rgb(74, 204, 9);
+  }
+
+td.highlight1 {
+    background-color: rgba(0, 255, 64, 0.345);
+  }

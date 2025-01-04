@@ -1,3 +1,5 @@
+import sys
+import json
 import re
 import urllib.request
 from bs4 import BeautifulSoup
@@ -33,8 +35,25 @@ def get_transfer_info(startsta, endsta):
     
     fare = soup.select_one('li.fare').text.strip()
     fare = int(re.search(r'(\d+)円', fare).group(1))
-    transfer_count = soup.select_one('li.transfer').text.strip()
-    transfer_count = int(re.search(r'乗換：(\d+)回', transfer_count).group(1))
+    count = soup.select_one('li.transfer').text.strip()
+    count = int(re.search(r'乗換：(\d+)回', count).group(1))
 
-    transfer_info = {"ridetime": ridetime, "fare": fare, "transfer_count": transfer_count}
+    transfer_info = {"ridetime": ridetime, "fare": fare, "count": count}
     return transfer_info
+
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: yahoo_transfer.py <property_address> <dest_station>")
+        sys.exit(1)
+
+    # 引数を取得
+    property_address = sys.argv[1]
+    dest_station = sys.argv[2]
+
+    # 引数を使用した処理
+    transfer_info = get_transfer_info(property_address, dest_station)
+    print(json.dumps(transfer_info, indent=2))
+
+if __name__ == "__main__":
+    main()

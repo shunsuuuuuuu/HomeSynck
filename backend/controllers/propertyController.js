@@ -31,17 +31,6 @@ exports.deleteAllProperties = async (req, res) => {
     }
 };
 
-// CSVデータのアップロード
-exports.uploadCSV = async (req, res) => {
-    try {
-        // CSVデータを処理してMongoDBに保存
-        res.status(201).json({ success: true, message: 'CSV data uploaded successfully' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-
 // 物件データを取得してDBに保存
 const { exec } = require('child_process');
 exports.fetchAndSavePropertyData = async (req, res) => {
@@ -77,3 +66,50 @@ exports.fetchAndSavePropertyData = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// 乗り換え情報を取得
+const { spawn } = require('child_process');
+exports.getTransferInfo = async (req, res) => {
+    try {
+        const id = decodeURIComponent(req.params.id);
+        const address = decodeURIComponent(req.params.address);
+        const destStation = decodeURIComponent(req.params.destStation);
+        console.log(`Searching transfer info for address: ${address}, destination station: ${destStation}`);
+        const pythonProcess = spawn('python3', ['./pycode/yahoo_transfer.py', address, destStation]);
+        let output = '';
+        let errorOutput = '';
+        pythonProcess.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+        pythonProcess.stderr.on('data', (data) => {
+            errorOutput += data.toString();
+        });
+        pythonProcess.on('close', async (code) => {
+            if (code === 0) {
+                try {
+                    const result = JSON.parse(output);
+                    res.json({ success: true, data: result });
+                    // transfer_timeをMongoDBに追加
+                    const property = await Property.findOne({ id: id });
+                    if (property) {
+                        property.transfer_time = result.ridetime;
+                        property.transfer_fare = result.fare;
+                        property.transfer_count = result.count;
+                        await property.save();
+                    }
+                    console.log('transfer_timeがMongoDBに追加されました');
+
+                }
+                catch (err) {
+                    res.status(500).json({ success: false, message: 'JSONパースエラー' });
+                }
+            }
+            else {
+                res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
+            }
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
