@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('エラー: ' + result.message); // 詳細なエラーを表示
         }
         
-            displayAllProperties();
+        displayAllProperties();
     });
 
     // ボタンクリック時で物件データをフィルタリングする処理
@@ -42,6 +42,21 @@ document.addEventListener('DOMContentLoaded', () => {
         searchTransferInfo(filteredProperties, destStation);
         displayFilteredProperties();
     });
+
+    // 物件データを削除する処理
+    const deleteBtn = document.getElementById('deleteBtn');
+    deleteBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/properties/delete-all-properties', {
+            method: 'DELETE',
+        });
+        const result = await response.json();
+        if (result.success) {
+            displayAllProperties();
+        } else {
+            console.error('エラー:', result.message);
+        }
+    });
+
 
     // 物件データを表示する関数
     async function displayAllProperties() {
