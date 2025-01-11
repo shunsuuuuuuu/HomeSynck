@@ -118,13 +118,14 @@ def main():
     # 部屋面積を数値に変換
     df_numeric['floor_area'] = [float(i.split('m2')[0]) for i in df_numeric['面積']]
 
+    # 家賃と面積が同じ物件は一つだけ残して削除する
+    df_numeric = df_numeric.drop_duplicates(subset=['rental_fee', 'floor_area'])
+
     # 住所から区を抽出
     df_numeric['section'] = [(i.split('区')[0]).replace('東京都', '') for i in df_numeric['address']]
 
     # DataFrameを辞書に変換
-    df_numeric = df_numeric.iloc[:5]
     data_dict = df_numeric.to_dict(orient='records')
-
 
     # 辞書をJSONにシリアライズ
     print(json.dumps(data_dict, ensure_ascii=False))
