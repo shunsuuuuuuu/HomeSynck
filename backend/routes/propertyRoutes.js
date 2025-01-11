@@ -9,7 +9,7 @@ router.get('/get-all-properties', propertyController.getAllProperties);
 router.delete('/delete-all-properties', propertyController.deleteAllProperties);
 
 // 物件データを取得して保存するルート
-router.get('/fetch-and-save', propertyController.fetchAndSavePropertyData);
+router.get('/fetch-property-info/:url', propertyController.fetchPropertyInfo);
 
 // 乗り換え情報を取得
 router.get('/get-transfer-info/:id/:address/:destStation', propertyController.getTransferInfo);

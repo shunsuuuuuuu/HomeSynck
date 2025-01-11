@@ -33,10 +33,14 @@ exports.deleteAllProperties = async (req, res) => {
 
 // 物件データを取得してDBに保存
 const { exec } = require('child_process');
-exports.fetchAndSavePropertyData = async (req, res) => {
+exports.fetchPropertyInfo = async (req, res) => {
+    const url = req.params.url;
+    console.log(`Fetching property info from URL : ${url}`);
     try {
         // Pythonスクリプトを実行して物件データを取得
-        exec('python3 ./pycode/test.py', async (error, stdout, stderr) => {
+        console.log(`Executing Python script`);
+        // Pythonスクリプトを実行
+        exec(`python3 pycode/fetchPropertyInfo.py "${url}"`, async (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error executing Python script: ${error.message}`);
                 return res.status(500).json({ success: false, message: 'Pythonスクリプトの実行に失敗しました' });
@@ -47,18 +51,15 @@ exports.fetchAndSavePropertyData = async (req, res) => {
                 return res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
             }
 
-            try {
-                // // Pythonスクリプトからの標準出力をJSONとしてパース
-                const properties = JSON.parse(stdout);
+            // Pythonスクリプトからの標準出力をJSONとしてパース
+            console.log('Python script stdout:', stdout);
+            const properties = JSON.parse(stdout);
 
-                // 物件データをMongoDBに挿入
-                const docs = await Property.insertMany(properties);
-                const insertedProperties = await Property.find();
-                console.log('Num of properties inserted:', insertedProperties.length);
-                res.status(200).json({ success: true, message: '物件データが保存されました！', data: docs });
-            } catch (err) {
-                res.status(500).json({ success: false, message: 'MongoDBへのデータ保存に失敗しました' });
-            }
+            // 物件データをMongoDBに挿入
+            const docs = await Property.insertMany(properties);
+            const insertedProperties = await Property.find();
+            console.log('Num of properties inserted:', insertedProperties.length);
+            res.status(200).json({ success: true, message: '物件データが保存されました！', data: docs });
 
         });
 

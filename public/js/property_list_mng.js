@@ -8,16 +8,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const transferBtn = document.getElementById('calcDistanceBtn');
 
     // ボタンクリック時で物件データを更新する処理
-    fetchDataBtn.addEventListener('click', async () => {
-        const response = await fetch('/api/properties/fetch-and-save');
+    fetchDataBtn.addEventListener('click', async (event) => {
+        event.preventDefault()
+        const url = document.getElementById('urlInput').value;
+        console.log('URL:', url);
+        const encodedUrl = encodeURIComponent(url);
+        const response = await fetch(`/api/properties/fetch-property-info/${encodedUrl}`);
         const result = await response.json();
 
         if (!result.success) {
             console.error('エラー:', result.message);
             alert('エラー: ' + result.message); // 詳細なエラーを表示
         }
-
-        displayAllProperties();
+        
+            displayAllProperties();
     });
 
     // ボタンクリック時で物件データをフィルタリングする処理
@@ -107,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${property.build_age || '-'}</td>
                 <td>${property.floor_area || '-'}</td>
                 <td class="highlight1">${property.transfer_time || '-'}</td>
-                <td class="highlight1">${property.transfer_count || '-'}</td>
+                <td class="highlight1">${property.transfer_count === 0 ? 0 : property.transfer_count || '-'}</td>
             `;
             tbody.appendChild(row);
         });
