@@ -35,7 +35,7 @@ exports.deleteAllProperties = async (req, res) => {
 const { exec } = require('child_process');
 exports.fetchPropertyInfo = async (req, res) => {
     const url = req.params.url;
-    console.log(`Fetching property info from URL : ${url}`);
+    console.log(`Updating property info from URL : ${url}`);
     try {
         // Pythonスクリプトを実行して物件データを取得
         console.log(`Executing Python script`);
@@ -52,7 +52,6 @@ exports.fetchPropertyInfo = async (req, res) => {
             }
 
             // Pythonスクリプトからの標準出力をJSONとしてパース
-            console.log('Python script stdout:', stdout);
             const properties = JSON.parse(stdout);
 
             // 物件データをMongoDBに挿入
@@ -70,12 +69,26 @@ exports.fetchPropertyInfo = async (req, res) => {
 
 // 乗り換え情報を取得
 const { spawn } = require('child_process');
+prev_address = '';
+prev_result = '';
 exports.getTransferInfo = async (req, res) => {
     try {
         const id = decodeURIComponent(req.params.id);
         const address = decodeURIComponent(req.params.address);
         const destStation = decodeURIComponent(req.params.destStation);
-        console.log(`Searching transfer info for address: ${address}, destination station: ${destStation}`);
+        if (address === prev_address) {
+            // 乗り換え情報をMongoDBに追加
+            const property = await Property.findOne({ id: id });
+            if (property) {
+                property.transfer_time = prev_result.ridetime;
+                property.transfer_fare = prev_result.fare;
+                property.transfer_count = prev_result.count;
+                await property.save();
+            }
+            return res.json({ success: true, data: prev_result });
+        }
+
+        console.log(`Search for transfer info from ${address} to ${destStation}`);
         const pythonProcess = spawn('python3', ['./pycode/yahoo_transfer.py', address, destStation]);
         let output = '';
         let errorOutput = '';
@@ -88,9 +101,8 @@ exports.getTransferInfo = async (req, res) => {
         pythonProcess.on('close', async (code) => {
             if (code === 0) {
                 try {
+                    // 乗り換え情報をMongoDBに追加
                     const result = JSON.parse(output);
-                    res.json({ success: true, data: result });
-                    // transfer_timeをMongoDBに追加
                     const property = await Property.findOne({ id: id });
                     if (property) {
                         property.transfer_time = result.ridetime;
@@ -98,8 +110,9 @@ exports.getTransferInfo = async (req, res) => {
                         property.transfer_count = result.count;
                         await property.save();
                     }
-                    console.log('transfer_timeがMongoDBに追加されました');
-
+                    prev_result = result;
+                    prev_address = address;
+                    res.json({ success: true, data: result });
                 }
                 catch (err) {
                     res.status(500).json({ success: false, message: 'JSONパースエラー' });

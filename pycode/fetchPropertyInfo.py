@@ -42,10 +42,6 @@ def main():
             base_data = {}
 
             # collect base information
-            img_tag = item.find("img", {"class": "js-noContextMenu"})
-            rel_value = img_tag['rel']
-            id_value = rel_value.split('/')[-2]  # URLからID部分を抽出
-            base_data["id"] = id_value
             base_data["name"] = item.find("div", {"class": "cassetteitem_content-title"}).getText().strip()
             base_data["category"] = item.find("div", {"class": "cassetteitem_content-label"}).getText().strip()
             base_data["address"] = item.find("li", {"class": "cassetteitem_detail-col1"}).getText().strip()
@@ -83,6 +79,13 @@ def main():
                 
                 data["url"] = "https://suumo.jp" + tbody.findAll("td")[8].find("a").get("href")
                 
+                img_tag = tbody.find("img", {"class": "casssetteitem_other-thumbnail-img"})
+                rel_value = img_tag['rel']
+                id_value = rel_value.split('/')[-2]  # 間取り画像からID部分を抽出
+                data["id"] = id_value
+                # id に数字以外を含む場合は - で置換
+                if not id_value.isdecimal():
+                    id_value = '-'
                 all_data.append(data)    
 
     df = pd.DataFrame(all_data)
@@ -120,6 +123,9 @@ def main():
 
     # 家賃と面積が同じ物件は一つだけ残して削除する
     df_numeric = df_numeric.drop_duplicates(subset=['rental_fee', 'floor_area'])
+
+    # id が数字以外の物件は削除
+    df_numeric = df_numeric[df_numeric['id'].str.isdecimal()]
 
     # 住所から区を抽出
     df_numeric['section'] = [(i.split('区')[0]).replace('東京都', '') for i in df_numeric['address']]
