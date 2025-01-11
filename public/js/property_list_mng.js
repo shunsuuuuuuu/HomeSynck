@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 物件データを取得
         const loadingMessage = document.getElementById('loadingMessage');
         loadingMessage.style.display = 'block';
-        loadingMessage.textContent = 'データを取得しています...';
+        loadingMessage.textContent = '物件データを取得しています...';
         try {
             const url = document.getElementById('urlInput').value;
             console.log('URL:', url);
@@ -50,6 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ボタンクリックで乗り換え情報を取得する処理
     transferBtn.addEventListener('click', async () => {
+        const loadingMessage = document.getElementById('transferLoadingMessage');
+        loadingMessage.style.display = 'block';
+        loadingMessage.textContent = '乗り換え情報を更新しています...';
+
         const destStation = document.getElementById('destinationInput').value;
 
         if (!destStation) {
@@ -60,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filteredProperties = await getFilteredProperties();
         await searchTransferInfo(filteredProperties, destStation);
         displayFilteredProperties();
+        loadingMessage.style.display = 'none';
     });
 
     // ボタンクリックで物件データを削除する処理
@@ -100,14 +105,13 @@ async function getFilteredProperties() {
     const response = await fetch('/api/properties/get-all-properties');
     const result = await response.json();
     const properties = await result.data;
-    const minRent = Number(document.getElementById('minRent').value) || 0;
     const maxRent = Number(document.getElementById('maxRent').value) || Infinity;
     const maxDistance = Number(document.getElementById('maxDistance').value) || Infinity;
     const minArea = Number(document.getElementById('minArea').value) || 0;
     const maxAge = Number(document.getElementById('maxAge').value) || Infinity;
 
     return properties.filter(property => {
-        const meetsRentCriteria = property.rental_fee >= minRent && property.rental_fee <= maxRent;
+        const meetsRentCriteria = property.rental_fee <= maxRent;
         const meetsDistanceCriteria = property.distance_to_station <= maxDistance;
         const meetsAreaCriteria = property.floor_area >= minArea;
         const meetsAgeCriteria = property.build_age <= maxAge;
