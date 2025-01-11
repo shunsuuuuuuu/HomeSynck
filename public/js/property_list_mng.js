@@ -6,30 +6,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchDataBtn = document.getElementById('fetchDataBtn');
     const filterBtn = document.getElementById('filterBtn');
     const transferBtn = document.getElementById('calcDistanceBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
 
-    // ボタンクリック時で物件データを更新する処理
+    // ボタンクリックで物件データを更新する処理
     fetchDataBtn.addEventListener('click', async (event) => {
         event.preventDefault()
-        const url = document.getElementById('urlInput').value;
-        console.log('URL:', url);
-        const encodedUrl = encodeURIComponent(url);
-        const response = await fetch(`/api/properties/fetch-property-info/${encodedUrl}`);
-        const result = await response.json();
-
-        if (!result.success) {
-            console.error('エラー:', result.message);
-            alert('エラー: ' + result.message); // 詳細なエラーを表示
-        }
         
-        displayAllProperties();
+        // 物件データを削除
+        await fetch('/api/properties/delete-all-properties', {
+            method: 'DELETE',
+        });
+
+        // 物件データを取得
+        const loadingMessage = document.getElementById('loadingMessage');
+        loadingMessage.style.display = 'block';
+        loadingMessage.textContent = 'データを取得しています...';
+        try {
+            const url = document.getElementById('urlInput').value;
+            console.log('URL:', url);
+            const encodedUrl = encodeURIComponent(url);
+
+            const fetchResponse = await fetch(`/api/properties/fetch-property-info/${encodedUrl}`);
+            const fetchResult = await fetchResponse.json();
+
+            if (!fetchResult.success) {
+                console.error('エラー:', fetchResult.message);
+                alert('エラー: ' + fetchResult.message); // 詳細なエラーを表示
+            }
+
+            displayAllProperties();
+        }
+        finally {
+            // ローディングメッセージの非表示
+            loadingMessage.style.display = 'none';
+        }
     });
 
-    // ボタンクリック時で物件データをフィルタリングする処理
+    // ボタンクリックで物件データをフィルタリングする処理
     filterBtn.addEventListener('click', () => {
         displayFilteredProperties();
     });
 
-    // ボタンクリック時で乗り換え情報を取得する処理
+    // ボタンクリックで乗り換え情報を取得する処理
     transferBtn.addEventListener('click', async () => {
         const destStation = document.getElementById('destinationInput').value;
 
@@ -37,14 +55,13 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('目的駅を入力してください');
             return;
         }
-        
+
         const filteredProperties = await getFilteredProperties();
         searchTransferInfo(filteredProperties, destStation);
         displayFilteredProperties();
     });
 
-    // 物件データを削除する処理
-    const deleteBtn = document.getElementById('deleteBtn');
+    // ボタンクリックで物件データを削除する処理
     deleteBtn.addEventListener('click', async () => {
         const response = await fetch('/api/properties/delete-all-properties', {
             method: 'DELETE',
@@ -80,13 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxRent = Number(document.getElementById('maxRent').value) || Infinity;
         const maxDistance = Number(document.getElementById('maxDistance').value) || Infinity;
         const minArea = Number(document.getElementById('minArea').value) || 0;
-        const maxArea = Number(document.getElementById('maxArea').value) || Infinity;
         const maxAge = Number(document.getElementById('maxAge').value) || Infinity;
 
         return properties.filter(property => {
             const meetsRentCriteria = property.rental_fee >= minRent && property.rental_fee <= maxRent;
             const meetsDistanceCriteria = property.distance_to_station <= maxDistance;
-            const meetsAreaCriteria = property.floor_area >= minArea && property.floor_area <= maxArea;
+            const meetsAreaCriteria = property.floor_area >= minArea;
             const meetsAgeCriteria = property.build_age <= maxAge;
 
             return meetsRentCriteria && meetsDistanceCriteria && meetsAreaCriteria && meetsAgeCriteria;

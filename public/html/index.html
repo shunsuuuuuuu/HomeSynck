@@ -18,6 +18,7 @@
             <input type="text" id="urlInput" placeholder="https://suumo.jp/chintai/tokyo/..."
                 style="width: 60%; min-width: 200px;">
             <button id="fetchDataBtn">物件データを取得</button>
+            <p id="loadingMessage" style="display: none; color: rgb(255, 0, 0);"></p>
         </div>
     </form>
 
@@ -26,33 +27,31 @@
         <div class="filter-group">
             <label for="minRent">家賃:</label>
             <div class="input-range">
-                <input type="number" id="minRent" placeholder="最小家賃">
+                <input type="number" id="minRent" placeholder="最小家賃" value="0">
                 <span>~</span>
-                <input type="number" id="maxRent" placeholder="最大家賃">
+                <input type="number" id="maxRent" placeholder="最大家賃" value="20">
                 <span>万円</span>
             </div>
         </div>
         <div class="filter-group">
             <label for="maxDistance">駅からの距離:</label>
             <div class="input-range">
-                <input type="number" id="maxDistance" placeholder="最大徒歩分数">
-                <span>分以内</span>
+                <input type="number" id="maxDistance" placeholder="最大徒歩分数" value="15">
+                <span>分 以内</span>
             </div>
         </div>
         <div class="filter-group">
             <label for="minArea">面積:</label>
             <div class="input-range">
-                <input type="number" id="minArea" placeholder="最小面積">
-                <span>~</span>
-                <input type="number" id="maxArea" placeholder="最大面積">
-                <span>m²</span>
+                <input type="number" id="minArea" placeholder="最小面積" value="20">
+                <span>m² 以上</span>
             </div>
         </div>
         <div class="filter-group">
             <label for="maxAge">築年数:</label>
             <div class="input-range">
-                <input type="number" id="maxAge" placeholder="築年数上限">
-                <span>年以内</span>
+                <input type="number" id="maxAge" value="10">
+                <span>年 以内</span>
             </div>
         </div>
         <button id="filterBtn">この条件で検索</button>
