@@ -11,11 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // ボタンクリックで物件データを更新する処理
     fetchDataBtn.addEventListener('click', async (event) => {
         event.preventDefault()
-        
+
         // 物件データを削除
         await fetch('/api/properties/delete-all-properties', {
             method: 'DELETE',
         });
+        displayAllProperties();
 
         // 物件データを取得
         const loadingMessage = document.getElementById('loadingMessage');
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const filteredProperties = await getFilteredProperties();
-        searchTransferInfo(filteredProperties, destStation);
+        await searchTransferInfo(filteredProperties, destStation);
         displayFilteredProperties();
     });
 
@@ -73,51 +74,57 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('エラー:', result.message);
         }
     });
+});
 
+// 物件データを表示する関数
+async function displayAllProperties() {
+    const response = await fetch('/api/properties/get-all-properties');
+    const properties = await response.json()
+    displayPropertyList(properties.data);
+    const propertyCountElement = document.getElementById('propertyCount');
+    const propatyCount = properties.data.length;
+    propertyCountElement.textContent = "物件一覧 (" + propatyCount + "件)";
+}
 
-    // 物件データを表示する関数
-    async function displayAllProperties() {
-        const response = await fetch('/api/properties/get-all-properties');
-        const properties = await response.json()
-        displayPropertyList(properties.data);
-    }
+// フィルタリングされた物件データを表示する関数
+export async function displayFilteredProperties() {
+    const filteredProperties = await getFilteredProperties();
+    displayPropertyList(filteredProperties);
+    const propertyCountElement = document.getElementById('propertyCount');
+    const propatyCount = filteredProperties.length;
+    propertyCountElement.textContent = "物件一覧 (" + propatyCount + "件)";
+}
 
-    // フィルタリングされた物件データを表示する関数
-    async function displayFilteredProperties() {
-        const filteredProperties = await getFilteredProperties();
-        displayPropertyList(filteredProperties);
-    }
+// 表示する物件データを抽出する関数
+async function getFilteredProperties() {
+    const response = await fetch('/api/properties/get-all-properties');
+    const result = await response.json();
+    const properties = await result.data;
+    const minRent = Number(document.getElementById('minRent').value) || 0;
+    const maxRent = Number(document.getElementById('maxRent').value) || Infinity;
+    const maxDistance = Number(document.getElementById('maxDistance').value) || Infinity;
+    const minArea = Number(document.getElementById('minArea').value) || 0;
+    const maxAge = Number(document.getElementById('maxAge').value) || Infinity;
 
-    // 表示する物件データを抽出する関数
-    async function getFilteredProperties() {
-        const response = await fetch('/api/properties/get-all-properties');
-        const result = await response.json();
-        const properties = await result.data;
-        const minRent = Number(document.getElementById('minRent').value) || 0;
-        const maxRent = Number(document.getElementById('maxRent').value) || Infinity;
-        const maxDistance = Number(document.getElementById('maxDistance').value) || Infinity;
-        const minArea = Number(document.getElementById('minArea').value) || 0;
-        const maxAge = Number(document.getElementById('maxAge').value) || Infinity;
+    return properties.filter(property => {
+        const meetsRentCriteria = property.rental_fee >= minRent && property.rental_fee <= maxRent;
+        const meetsDistanceCriteria = property.distance_to_station <= maxDistance;
+        const meetsAreaCriteria = property.floor_area >= minArea;
+        const meetsAgeCriteria = property.build_age <= maxAge;
 
-        return properties.filter(property => {
-            const meetsRentCriteria = property.rental_fee >= minRent && property.rental_fee <= maxRent;
-            const meetsDistanceCriteria = property.distance_to_station <= maxDistance;
-            const meetsAreaCriteria = property.floor_area >= minArea;
-            const meetsAgeCriteria = property.build_age <= maxAge;
+        return meetsRentCriteria && meetsDistanceCriteria && meetsAreaCriteria && meetsAgeCriteria;
+    });
+};
 
-            return meetsRentCriteria && meetsDistanceCriteria && meetsAreaCriteria && meetsAgeCriteria;
-        });
-    };
+function displayPropertyList(properties) {
+    const propertiesList = document.getElementById('propertiesList');
+    propertiesList.innerHTML = '';
 
-    function displayPropertyList(properties) {
-        const propertiesList = document.getElementById('propertiesList');
-        propertiesList.innerHTML = '';
+    const table = document.createElement('table');
+    table.className = 'property-table';
 
-        const table = document.createElement('table');
-        table.className = 'property-table';
-
-        const thead = document.createElement('thead');
-        thead.innerHTML = `
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
             <tr>
                 <th>物件名</th>
                 <th>家賃 (万円)</th>
@@ -129,25 +136,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 <th class="highlight1-header">乗り換え回数</th>
             </tr>
         `;
-        table.appendChild(thead);
+    table.appendChild(thead);
 
-        const tbody = document.createElement('tbody');
-        properties.forEach(property => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+    const tbody = document.createElement('tbody');
+    properties.forEach(property => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
                 <td>${property.name || '物件名なし'}</td>
                 <td>${property.rental_fee || '-'}</td>
                 <td>${property.address || '-'}</td>
                 <td>${property.access || '-'}</td>
-                <td>${property.build_age || '-'}</td>
+                <td>${property.build_age === 0 ? 0 : property.build_age || '-'}</td>
                 <td>${property.floor_area || '-'}</td>
                 <td class="highlight1">${property.transfer_time || '-'}</td>
                 <td class="highlight1">${property.transfer_count === 0 ? 0 : property.transfer_count || '-'}</td>
             `;
-            tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
 
-        propertiesList.appendChild(table);
-    }
-});
+    propertiesList.appendChild(table);
+}

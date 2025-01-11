@@ -10,7 +10,6 @@
 
 <body>
     <h1>HomeSynck</h1>
-    <!-- Input URL form -->
     <h2>物件データの取得</h2>
     <form id="urlForm">
         <label for="urlInput">SUMMOで対象エリアを絞ったURLを入力してください。</label>
@@ -43,7 +42,7 @@
         <div class="filter-group">
             <label for="minArea">面積:</label>
             <div class="input-range">
-                <input type="number" id="minArea" placeholder="最小面積" value="20">
+                <input type="number" id="minArea" placeholder="最小面積" value="40">
                 <span>m² 以上</span>
             </div>
         </div>
@@ -57,8 +56,7 @@
         <button id="filterBtn">この条件で検索</button>
     </div>
 
-    <h2>物件一覧</h2>
-    <!-- 目的地を文字で入力 -->
+    <h2 id="propertyCount">物件一覧</h2>
     <div>
         <label for="destinationInput">通勤先や通学先の駅名を入力してください。</label>
     </div>
