@@ -5,6 +5,7 @@ const propertySchema = new mongoose.Schema({
     name: { type: String, required: true }, // 名称
     category: { type: String, required: true }, // カテゴリ
     address: { type: String, required: true }, // アドレス
+    ward: { type: String, required: true }, // アドレス
     access: { type: String, required: true }, // アクセス
     structure: { type: String, required: true }, // 構造
     layout: { type: String, required: true }, // 間取り

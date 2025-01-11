@@ -23,7 +23,7 @@ def main():
     soup = get_html(base_url) # Used to get the number of pages
     max_page = int(soup.select_one('ol.pagination-parts').text.strip().split()[-1])
 
-    max_page = 1
+    max_page = 3
 
     # TODO: 関数化
     all_data = []
@@ -128,7 +128,7 @@ def main():
     df_numeric = df_numeric[df_numeric['id'].str.isdecimal()]
 
     # 住所から区を抽出
-    df_numeric['section'] = [(i.split('区')[0]).replace('東京都', '') for i in df_numeric['address']]
+    df_numeric['ward'] = [(i.split('区')[0]).replace('東京都', '') + '区' for i in df_numeric['address']]
 
     # DataFrameを辞書に変換
     data_dict = df_numeric.to_dict(orient='records')
