@@ -1,3 +1,98 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 5%;
+}
+
+button {
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+h3 {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.step-layout {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+
+.step1-section {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+.step23-section {
+    width: 50%;
+    display: block;
+}
+
+.filter-container,
+.commute-container,
+.prediction-container {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 0px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+}
+
+.filter-container {
+    background-color: #f9f9f9;
+    padding-bottom: 15px;
+}
+
+.commute-container {
+    background-color: #39f50a87;
+    margin-bottom: 10px; 
+    padding-bottom: 15px;
+}
+
+.prediction-container {
+    background-color: #f5da0a87;
+    margin-bottom: 0px; 
+    padding-bottom: 15px;
+
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .step-layout {
+        flex-direction: column;
+    }
+    .step1-section,
+    .step23-section {
+        width: 100%;
+    }
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.filter-group input {
+    width: 50px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.filter-group span {
+    display: inline-block;
+    min-width: 80px;
+}
+
+destinationInput {
+    width: 100px;
+    margin-right: 10px;
+}
+
 .property-table {
     width: 100%;
     border-collapse: collapse;
@@ -38,62 +133,3 @@ th.highlight1-header {
 td.highlight1 {
     background-color: rgba(0, 255, 64, 0.345);
   }
-
-.filter-container{
-    width: 50%; /* 各セクションの幅 */
-    padding: 15px; /* 内側の余白 */
-    border: 2px solid #ccc; /* 枠線 */
-    border-radius: 8px; /* 角を丸める */
-    background-color: #f9f9f9; /* 背景色 */
-}
-
-.commute-container {
-    width: 50%; /* 各セクションの幅 */
-    padding: 15px; /* 内側の余白 */
-    border: 2px solid #ccc; /* 枠線 */
-    border-radius: 8px; /* 角を丸める */
-    background-color: #39f50a87; /* 背景色 */
-}
-
-.filter-section {
-    display: flex; /* 横並びを維持 */
-    justify-content: space-between; /* 均等に配置 */
-    gap: 20px; /* セクション間の隙間 */
-    background-color: #ffffff; /* セクション全体の背景色 */
-    padding: 10px;
-    border-radius: 10px;
-}
-
-.filter-group {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* 各フィールドの間隔 */
-    margin-bottom: 10px; /* グループ間の余白を追加 */
-}
-
-.filter-group input {
-    width: 50px; /* 入力フィールドの幅を統一 */
-    padding: 5px; /* 入力フィールドに内側の余白を追加 */
-    box-sizing: border-box; /* 幅にパディングを含める */
-}
-
-.filter-group span {
-    display: inline-block;
-    min-width: 80px; /* スパン要素の最小幅を指定して揃える */
-}
-
-button {
-    margin-top: 20px;
-    cursor: pointer;
-}
-
-h3 {
-    width: 100%; /* 見出しが横並びになるのを防ぐため */
-    margin-bottom: 10px;
-}
-
-#destinationInput {
-    width: 100px;
-    padding: 5px; /* 入力フィールドに内側の余白を追加 */
-    margin-right: 10px; /* ボタンとの間隔を調整 */
-}

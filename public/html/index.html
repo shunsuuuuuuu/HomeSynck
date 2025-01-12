@@ -12,7 +12,7 @@
     <h1>HomeSynck</h1>
     <h2>物件データの取得</h2>
     <form id="urlForm">
-        <label for="urlInput">SUMMOで対象エリアを絞ったURLを入力してください。</label>
+        <label for="urlInput">SUUMOで対象エリアを絞ったURLを入力してください。</label>
         <div>
             <input type="text" id="urlInput" placeholder="https://suumo.jp/chintai/tokyo/..."
                 style="width: 60%; min-width: 200px;">
@@ -23,53 +23,58 @@
 
     <h2 id="propertyCount">物件一覧</h2>
 
-    <div class="filter-section">
-        <div class="filter-container">
-            <h3>STEP1: 条件で絞り込む</h3>
-            <div class="filter-group">
-                <label for="maxRent">家賃:</label>
-                <div class="input-range">
-                    <input type="number" id="maxRent" placeholder="最大家賃" value="20">
-                    <span>万円 以下</span>
+    <div class="step-layout">
+        <div class="step1-section">
+            <div class="filter-container">
+                <h3>STEP1: 条件で絞り込む</h3>
+                <div class="filter-group">
+                    <label for="maxRent">家賃:</label>
+                    <div class="input-range">
+                        <input type="number" id="maxRent" placeholder="最大家賃" value="20">
+                        <span>万円 以下</span>
+                    </div>
                 </div>
-            </div>
-            <div class="filter-group">
-                <label for="maxDistance">駅からの距離:</label>
-                <div class="input-range">
-                    <input type="number" id="maxDistance" placeholder="最大徒歩分数" value="15">
-                    <span>分 以内</span>
+                <div class="filter-group">
+                    <label for="maxDistance">駅からの距離:</label>
+                    <div class="input-range">
+                        <input type="number" id="maxDistance" placeholder="最大徒歩分数" value="15">
+                        <span>分 以内</span>
+                    </div>
                 </div>
-            </div>
-            <div class="filter-group">
-                <label for="minArea">面積:</label>
-                <div class="input-range">
-                    <input type="number" id="minArea" placeholder="最小面積" value="40">
-                    <span>m² 以上</span>
+                <div class="filter-group">
+                    <label for="minArea">面積:</label>
+                    <div class="input-range">
+                        <input type="number" id="minArea" placeholder="最小面積" value="40">
+                        <span>m² 以上</span>
+                    </div>
                 </div>
-            </div>
-            <div class="filter-group">
-                <label for="maxAge">築年数:</label>
-                <div class="input-range">
-                    <input type="number" id="maxAge" value="10">
-                    <span>年 以内</span>
+                <div class="filter-group">
+                    <label for="maxAge">築年数:</label>
+                    <div class="input-range">
+                        <input type="number" id="maxAge" value="10">
+                        <span>年 以内</span>
+                    </div>
                 </div>
+                <button id="filterBtn">この条件で検索</button>
             </div>
-            <button id="filterBtn">この条件で検索</button>
+        </div>
+
+        <div class="step23-section">
+            <div class="commute-container">
+                <h3>STEP2: 乗り換え情報</h3>
+                <label for="destinationInput">通勤先や通学先の駅名を入力してください。</label>
+                <input type="text" id="destinationInput" placeholder="例: 東京">
+                <button id="calcDistanceBtn">通勤時間を計算</button>
+                <p id="transferLoadingMessage" style="display: none; color: rgb(255, 0, 0);"></p>
+                
+            </div>
+            <div class="prediction-container">
+                <h3>STEP3: 家賃相場を予測</h3>
+                <label for="destinationInput">AIで築年数や部屋の広さなどから家賃相場を予測します。</label>
+                <button id="predictRentBtn">予測</button>
+            </div>
         </div>
     
-        <div class="commute-container">
-            <h3>STEP2: 乗り換え情報</h3>
-            <div>
-                <label for="destinationInput">通勤先や通学先の駅名を入力してください。</label>
-            </div>
-            <div>
-                <input type="text" id="destinationInput" placeholder="目的地を入力">
-            </div>
-            <div>
-                <button id="calcDistanceBtn">通勤時間を計算</button>
-            </div>
-            <p id="transferLoadingMessage" style="display: none; color: rgb(255, 0, 0);"></p>
-        </div>
     </div>
     
     <div style="height: 20px;"></div>
