@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchDataBtn = document.getElementById('fetchDataBtn');
     const filterBtn = document.getElementById('filterBtn');
     const transferBtn = document.getElementById('calcDistanceBtn');
+    const predictBtn = document.getElementById('predictRentBtn');
     const deleteBtn = document.getElementById('deleteBtn');
 
     // ボタンクリックで物件データを更新する処理
@@ -67,6 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingMessage.style.display = 'none';
     });
 
+    // ボタンクリックで家賃を予測する処理
+    predictBtn.addEventListener('click', async () => {
+        const loadingMessage = document.getElementById('predictLoadingMessage');
+        loadingMessage.style.display = 'block';
+        loadingMessage.textContent = '予測を実行しています...';
+
+        const filteredProperties = await getFilteredProperties();
+        await predictRentalFee(filteredProperties);
+        displayFilteredProperties();
+        loadingMessage.style.display = 'none';
+    });
+
     // ボタンクリックで物件データを削除する処理
     deleteBtn.addEventListener('click', async () => {
         const response = await fetch('/api/properties/delete-all-properties', {
@@ -80,6 +93,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// 家賃の予測を実行する関数
+async function predictRentalFee(properties) {
+    for (const property of properties) {
+
+        const id = property.id;
+        const floor = property.floor_num;
+        const area = property.floor_area;
+        const age = property.build_age;
+        const distance = property.distance_to_station;
+        const ward = property.ward;
+        const monthly_fee = property.monthly_fee;
+
+        console.log(`家賃予測 -> id: ${id}, floor: ${floor}, area: ${area}, age: ${age}, distance: ${distance}, ward: ${ward}, monthly_fee: ${monthly_fee}`);
+
+        const response = await fetch(`/api/properties/predict-rental-fee/${id}/${area}/${floor}/${age}/${distance}/${ward}/${monthly_fee}`);
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`-> 予測: ${result.data.pred}, 差分: ${result.data.gap}`);
+            displayFilteredProperties();
+        }
+        else {
+            throw new Error(`家賃の予測に失敗しました: ${response.statusText}`);
+        }
+    }
+}
 
 // 物件データを表示する関数
 async function displayAllProperties() {
@@ -138,6 +177,8 @@ function displayPropertyList(properties) {
                 <th>面積 (m²)</th>
                 <th class="highlight1-header">通勤時間</th>
                 <th class="highlight1-header">乗り換え回数</th>
+                <th class="highlight2-header">予測家賃(万円)</th>
+                <th class="highlight2-header">差分(万円)</th>
             </tr>
         `;
     table.appendChild(thead);
@@ -147,13 +188,15 @@ function displayPropertyList(properties) {
         const row = document.createElement('tr');
         row.innerHTML = `
                 <td>${property.name || '物件名なし'}</td>
-                <td>${property.rental_fee || '-'}</td>
+                <td>${property.monthly_fee || '-'}</td>
                 <td>${property.address || '-'}</td>
                 <td>${property.access || '-'}</td>
                 <td>${property.build_age === 0 ? 0 : property.build_age || '-'}</td>
                 <td>${property.floor_area || '-'}</td>
                 <td class="highlight1">${property.transfer_time || '-'}</td>
                 <td class="highlight1">${property.transfer_count === 0 ? 0 : property.transfer_count || '-'}</td>
+                <td class="highlight2">${property.monthly_fee_pred || '-'}</td>
+                <td class="highlight2">${property.monthly_fee_gap === 0 ? 0 : property.monthly_fee_gap || '-'}</td>
             `;
         tbody.appendChild(row);
     });

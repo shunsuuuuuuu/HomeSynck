@@ -12,7 +12,7 @@ mongoose.connect(MONGO_URI).then(() => {
 // DBから全ての物件データの取得
 exports.getAllProperties = async (req, res) => {
     try {
-        console.log('Fetching all properties from MongoDB...');
+        console.log('Fetched all properties from datebase...');
         const properties = await Property.find();
         res.status(200).json({ success: true, data: properties });
     } catch (error) {
@@ -127,3 +127,46 @@ exports.getTransferInfo = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 }
+
+// 家賃の予測
+exports.predictRentalFee = async (req, res) => {
+    const id = decodeURIComponent(req.params.id);
+    const area = decodeURIComponent(req.params.area);
+    const floor = decodeURIComponent(req.params.floor);
+    const age = decodeURIComponent(req.params.age);
+    const distance = decodeURIComponent(req.params.distance);
+    const ward = decodeURIComponent(req.params.ward);
+    const monthly_fee = decodeURIComponent(req.params.monthly_fee);
+
+    const pythonProcess = spawn('python3', ['./pycode/predictRentalFee.py', area, floor, age, distance, ward, monthly_fee]);
+    let output = '';
+    let errorOutput = '';
+    pythonProcess.stdout.on('data', (data) => {
+        output += data.toString();
+    });
+    pythonProcess.stderr.on('data', (data) => {
+        errorOutput += data.toString();
+    });
+    pythonProcess.on('close', async (code) => {
+        if (code === 0) {
+            try {
+                // 家賃予測をMongoDBに追加
+                const result = JSON.parse(output);
+                console.log(`Predicted rental fee: ${result.pred}, Gap: ${result.gap}`);
+                const property = await Property.findOne({ id: id });
+                if (property) {
+                    property.monthly_fee_pred = result.pred;
+                    property.monthly_fee_gap = result.gap;
+                    await property.save();
+                }
+                res.json({ success: true, data: result });
+            }
+            catch (err) {
+                res.status(500).json({ success: false, message: 'JSONパースエラー' });
+            }
+        }
+        else {
+            res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
+        }
+    });
+};

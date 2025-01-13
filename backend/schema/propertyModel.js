@@ -22,7 +22,10 @@ const propertySchema = new mongoose.Schema({
     // 乗り換え情報
     transfer_time: { type: Number, required: false }, // 所要時間 (分)
     transfer_fare: { type: Number, required: false }, // 運賃
-    transfer_count: { type: Number, required: false } // 乗り換え回数
+    transfer_count: { type: Number, required: false }, // 乗り換え回数
+    // 予測家賃
+    monthly_fee_pred: { type: Number, required: false }, // 予測家賃
+    monthly_fee_gap: { type: Number, required: false } // 差額家賃
 });
 
 module.exports = mongoose.model('Property', propertySchema);
