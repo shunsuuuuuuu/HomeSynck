@@ -15,7 +15,6 @@ router.get('/fetch-property-info/:url', propertyController.fetchPropertyInfo);
 router.get('/get-transfer-info/:id/:address/:destStation', propertyController.getTransferInfo);
 
 // 家賃予測
-router.get('/predict-rental-fee/:id/:area/:floor/:age/:distance/:ward/:monthly_fee',
-            propertyController.predictRentalFee);
+router.post('/predict-rental-fee', propertyController.predictRentalFee);
 
 module.exports = router;

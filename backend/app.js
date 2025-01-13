@@ -1,6 +1,7 @@
 // モジュールのインポート
 const express = require('express');
 const app = express();
+app.use(express.json()); 
 app.use('/css', express.static('public/css'));
 app.use('/js', express.static('public/js'));
 app.use('/', express.static('public/html'));

@@ -12,7 +12,6 @@ mongoose.connect(MONGO_URI).then(() => {
 // DBから全ての物件データの取得
 exports.getAllProperties = async (req, res) => {
     try {
-        console.log('Fetched all properties from datebase...');
         const properties = await Property.find();
         res.status(200).json({ success: true, data: properties });
     } catch (error) {
@@ -130,36 +129,41 @@ exports.getTransferInfo = async (req, res) => {
 
 // 家賃の予測
 exports.predictRentalFee = async (req, res) => {
-    const id = decodeURIComponent(req.params.id);
-    const area = decodeURIComponent(req.params.area);
-    const floor = decodeURIComponent(req.params.floor);
-    const age = decodeURIComponent(req.params.age);
-    const distance = decodeURIComponent(req.params.distance);
-    const ward = decodeURIComponent(req.params.ward);
-    const monthly_fee = decodeURIComponent(req.params.monthly_fee);
+    // Pythonスクリプトを実行して家賃を予測
+    const properties = req.body;
+    const pythonProcess = spawn('python3', ['./pycode/predictRentalFee.py']);
+    pythonProcess.stdin.write(JSON.stringify(properties));
+    pythonProcess.stdin.end();
 
-    const pythonProcess = spawn('python3', ['./pycode/predictRentalFee.py', area, floor, age, distance, ward, monthly_fee]);
+    // Pythonスクリプトの出力を処理
     let output = '';
     let errorOutput = '';
     pythonProcess.stdout.on('data', (data) => {
         output += data.toString();
     });
+
     pythonProcess.stderr.on('data', (data) => {
+        console.error("Python error:", data.toString());
         errorOutput += data.toString();
     });
+
     pythonProcess.on('close', async (code) => {
         if (code === 0) {
             try {
                 // 家賃予測をMongoDBに追加
-                const result = JSON.parse(output);
-                console.log(`Predicted rental fee: ${result.pred}, Gap: ${result.gap}`);
-                const property = await Property.findOne({ id: id });
-                if (property) {
-                    property.monthly_fee_pred = result.pred;
-                    property.monthly_fee_gap = result.gap;
-                    await property.save();
+                const results = JSON.parse(output);
+                const { pred, gap } = results;
+                for (let i = 0; i < properties.length; i++) {
+                    const property = await Property.findOne({ id: properties[i].id });
+                    if (property && !property.monthly_fee_pred) {
+                        console.log(`Update predict rental fee for property: ${property.id}`);
+                        // 予測値とギャップを保存
+                        property.monthly_fee_pred = pred[i];
+                        property.monthly_fee_gap = gap[i];
+                        await property.save();
+                    }
                 }
-                res.json({ success: true, data: result });
+                res.json({ success: true, data: results });
             }
             catch (err) {
                 res.status(500).json({ success: false, message: 'JSONパースエラー' });

@@ -96,27 +96,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 家賃の予測を実行する関数
 async function predictRentalFee(properties) {
-    for (const property of properties) {
-
-        const id = property.id;
-        const floor = property.floor_num;
-        const area = property.floor_area;
-        const age = property.build_age;
-        const distance = property.distance_to_station;
-        const ward = property.ward;
-        const monthly_fee = property.monthly_fee;
-
-        console.log(`家賃予測 -> id: ${id}, floor: ${floor}, area: ${area}, age: ${age}, distance: ${distance}, ward: ${ward}, monthly_fee: ${monthly_fee}`);
-
-        const response = await fetch(`/api/properties/predict-rental-fee/${id}/${area}/${floor}/${age}/${distance}/${ward}/${monthly_fee}`);
-        if (response.ok) {
-            const result = await response.json();
-            console.log(`-> 予測: ${result.data.pred}, 差分: ${result.data.gap}`);
-            displayFilteredProperties();
-        }
-        else {
-            throw new Error(`家賃の予測に失敗しました: ${response.statusText}`);
-        }
+    const response = await fetch('/api/properties/predict-rental-fee', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(properties)
+    });
+    if (response.ok) {
+        // const result = await response.json();
+        // console.log(`-> 予測: ${result.data.pred}, 差分: ${result.data.gap}`);
+    }
+    else {
+        throw new Error(`家賃の予測に失敗しました: ${response.statusText}`);
     }
 }
 
