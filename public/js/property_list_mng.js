@@ -1,5 +1,3 @@
-import { searchTransferInfo } from './search_transfer_info.js';
-
 // DOMContentLoadedイベントで呼び出し
 document.addEventListener('DOMContentLoaded', () => {
     displayAllProperties();
@@ -93,6 +91,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// 乗り換え情報を取得し、データベースを更新する関数
+export async function searchTransferInfo(properties, destStation) {
+    for (const property of properties) {
+        const id = property.id;
+        const address = property.address;
+        try {
+            const response = await fetch(`/api/properties/get-transfer-info/${id}/${address}/${destStation}`);
+            if (response.ok) {
+                const result = await response.json();
+                console.log(`物件ID: ${id}, 目的駅: ${destStation} 乗り換え情報: ${result.data.ridetime}分, ${result.data.count}回`);
+                displayFilteredProperties();
+            } else {
+                console.error(`物件ID: ${id}, エラー: ${result ? result.message : '不明なエラー'}`);
+            }
+        } catch (error) {
+            console.error(`物件ID: ${id}, 処理中にエラーが発生しました:`, error);
+        }
+    }
+}
 
 // 家賃の予測を実行する関数
 async function predictRentalFee(properties) {

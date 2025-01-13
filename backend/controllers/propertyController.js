@@ -89,14 +89,17 @@ exports.getTransferInfo = async (req, res) => {
 
         console.log(`Search for transfer info from ${address} to ${destStation}`);
         const pythonProcess = spawn('python3', ['./pycode/yahoo_transfer.py', address, destStation]);
+
         let output = '';
-        let errorOutput = '';
         pythonProcess.stdout.on('data', (data) => {
             output += data.toString();
         });
+
+        let errorOutput = '';
         pythonProcess.stderr.on('data', (data) => {
             errorOutput += data.toString();
         });
+
         pythonProcess.on('close', async (code) => {
             if (code === 0) {
                 try {
