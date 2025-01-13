@@ -21,19 +21,25 @@ h3 {
 }
 
 .step1-section {
-    width: 50%;
+    width: 25%;
     display: flex;
     flex-direction: column;
 }
 
 .step23-section {
-    width: 50%;
+    width:40%;
+    display: block;
+}
+
+.step4-section {
+    width: 35%;
     display: block;
 }
 
 .filter-container,
 .commute-container,
-.prediction-container {
+.prediction-container,
+.scoring-container {
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 0px;
@@ -56,7 +62,12 @@ h3 {
     background-color: #f5da0a87;
     margin-bottom: 0px; 
     padding-bottom: 15px;
+}
 
+.scoring-container {
+    background-color: #f59f0a87;
+    margin-bottom: 0px; 
+    padding-bottom: 15px;
 }
 
 /* レスポンシブ対応 */
@@ -65,7 +76,8 @@ h3 {
         flex-direction: column;
     }
     .step1-section,
-    .step23-section {
+    .step23-section,
+    .step4-section {
         width: 100%;
     }
 }
@@ -91,6 +103,24 @@ h3 {
 destinationInput {
     width: 100px;
     margin-right: 10px;
+}
+
+.scoring-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.scoring-group input {
+    width: 65px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.scoring-group span {
+    display: inline-block;
 }
 
 .property-table {
