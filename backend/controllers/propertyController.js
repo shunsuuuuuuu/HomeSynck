@@ -4,7 +4,7 @@ const Property = require('../schema/propertyModel');
 const mongoose = require('mongoose');
 const MONGO_URI = 'mongodb://localhost:27017/property';
 mongoose.connect(MONGO_URI).then(() => {
-    console.log('MongoDBに接続しました');
+    console.log('Successfully connected to MongoDB.');
 }).catch(err => {
     console.error('MongoDB接続エラー:', err);
 });
@@ -24,7 +24,7 @@ exports.deleteAllProperties = async (req, res) => {
     try {
         console.log('Deleting all properties from MongoDB...');
         await Property.deleteMany();
-        res.status(200).json({ success: true, message: 'All properties deleted successfully' });
+        res.status(200).json({ success: true, message: 'Successfully all properties are deleted.' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -132,48 +132,57 @@ exports.getTransferInfo = async (req, res) => {
 
 // 家賃の予測
 exports.predictRentalFee = async (req, res) => {
-    // Pythonスクリプトを実行して家賃を予測
-    const properties = req.body;
-    const pythonProcess = spawn('python3', ['./pycode/predictRentalFee.py']);
-    pythonProcess.stdin.write(JSON.stringify(properties));
-    pythonProcess.stdin.end();
+    console.log("Predict rental fee.");
+    try {
+        // Pythonスクリプトを実行して家賃を予測
+        const properties = req.body;
+        const pythonProcess = spawn('python3', ['./pycode/predictRentalFee.py']);
+        pythonProcess.stdin.write(JSON.stringify(properties));
+        pythonProcess.stdin.end();
 
-    // Pythonスクリプトの出力を処理
-    let output = '';
-    let errorOutput = '';
-    pythonProcess.stdout.on('data', (data) => {
-        output += data.toString();
-    });
+        // Pythonスクリプトの出力を処理
+        let output = '';
+        let errorOutput = '';
+        pythonProcess.stdout.on('data', (data) => {
+            output += data.toString();
+        });
 
-    pythonProcess.stderr.on('data', (data) => {
-        console.error("Python error:", data.toString());
-        errorOutput += data.toString();
-    });
+        pythonProcess.stderr.on('data', (data) => {
+            console.error("Python error:", data.toString());
+            errorOutput += data.toString();
+        });
 
-    pythonProcess.on('close', async (code) => {
-        if (code === 0) {
-            try {
-                // 家賃予測をMongoDBに追加
-                const results = JSON.parse(output);
-                const { pred, gap } = results;
-                for (let i = 0; i < properties.length; i++) {
-                    const property = await Property.findOne({ id: properties[i].id });
-                    if (property && !property.monthly_fee_pred) {
-                        console.log(`Update predict rental fee for property: ${property.id}`);
-                        // 予測値とギャップを保存
-                        property.monthly_fee_pred = pred[i];
-                        property.monthly_fee_gap = gap[i];
-                        await property.save();
+        pythonProcess.on('close', async (code) => {
+            if (code === 0) {
+                try {
+                    // 家賃予測をMongoDBに追加
+                    const results = JSON.parse(output);
+                    const { pred, gap } = results;
+                    for (let i = 0; i < properties.length; i++) {
+                        const property = await Property.findOne({ id: properties[i].id });
+                        if (property && !property.monthly_fee_pred) {
+                            console.log(`Update rental fee predictin for: ${property.name}`);
+                            // 予測値とギャップを保存
+                            property.monthly_fee_pred = pred[i];
+                            property.monthly_fee_gap = gap[i];
+                            await property.save();
+                        }
                     }
+                    res.json({ success: true, data: results });
                 }
-                res.json({ success: true, data: results });
+                catch (err) {
+                    res.status(500).json({ success: false, message: 'JSONパースエラー' });
+                }
             }
-            catch (err) {
-                res.status(500).json({ success: false, message: 'JSONパースエラー' });
+            else {
+                res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
             }
-        }
-        else {
-            res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
-        }
-    });
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: '家賃予測に失敗しました。' });
+    }
+    finally {
+        console.log("Rental fee prediction completed.");
+    }
 };

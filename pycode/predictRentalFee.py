@@ -41,14 +41,14 @@ def main():
     input_data = sys.stdin.read()
     properties = json.loads(input_data)
 
-    monthly_fee = []
-    for item in properties:
-        monthly_fee.append(float(item["monthly_fee"]))
-
     # デバッグ用: JSONファイルからデータを読み込む
     # with open('database.json', encoding='utf-8') as f:
     #     data_dict = json.load(f)
     # properties = pd.DataFrame(data_dict['data'])
+
+    monthly_fee = []
+    for item in properties:
+        monthly_fee.append(float(item["monthly_fee"]))
 
     # 推論実行
     preds = predict(properties)
