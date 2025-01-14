@@ -17,4 +17,7 @@ router.get('/get-transfer-info/:id/:address/:destStation', propertyController.ge
 // 家賃予測
 router.post('/predict-rental-fee', propertyController.predictRentalFee);
 
+// スコアリング
+router.post('/scoring', propertyController.scoring);
+
 module.exports = router;

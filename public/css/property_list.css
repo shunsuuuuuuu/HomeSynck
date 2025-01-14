@@ -171,3 +171,11 @@ th.highlight2-header {
 td.highlight2 {
     background-color: rgba(238, 255, 0, 0.434);
   }
+
+  th.highlight3-header {
+    background-color: rgb(7, 116, 225);
+  }
+
+td.highlight3 {
+    background-color: rgba(0, 179, 255, 0.434);
+  }

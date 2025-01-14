@@ -186,3 +186,55 @@ exports.predictRentalFee = async (req, res) => {
         console.log("Rental fee prediction completed.");
     }
 };
+
+// スコアリング
+exports.scoring = async (req, res) => {
+    console.log("Scoring.");
+    try {
+        // Pythonスクリプトを実行してスコアリング
+        const properties = req.body;
+        const pythonProcess = spawn('python3', ['./pycode/calcScore.py']);
+        pythonProcess.stdin.write(JSON.stringify(properties));
+        pythonProcess.stdin.end();
+
+        // Pythonスクリプトの出力を処理
+        let output = '';
+        pythonProcess.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        let errorOutput = '';
+        pythonProcess.stderr.on('data', (data) => {
+            console.error("Python error:", data.toString());
+            errorOutput += data.toString();
+        });
+
+        pythonProcess.on('close', async (code) => {
+            if (code === 0) {
+                try {
+                    // スコアリング結果をMongoDBに追加
+                    const results = JSON.parse(output);
+                    // スコアリング結果をMongoDBに追加
+                    for (let i = 0; i < properties.length; i++) {
+                        const property = await Property.findOne({ id: properties[i].id });
+                        if (property) {
+                            console.log(`Update score of: ${property.name}`);
+                            property.score = results[i]["Total_score"];
+                            await property.save();
+                        }
+                    }
+                    res.json({ success: true, data: results });
+                }
+                catch (err) {
+                    res.status(500).json({ success: false, message: 'JSONパースエラー' });
+                }
+            }
+            else {
+                res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
+            }
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: 'スコアリングに失敗しました。' });
+    }
+};

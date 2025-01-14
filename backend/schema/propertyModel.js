@@ -25,7 +25,9 @@ const propertySchema = new mongoose.Schema({
     transfer_count: { type: Number, required: false }, // 乗り換え回数
     // 予測家賃
     monthly_fee_pred: { type: Number, required: false }, // 予測家賃
-    monthly_fee_gap: { type: Number, required: false } // 差額家賃
+    monthly_fee_gap: { type: Number, required: false }, // 差額家賃
+    // スコア
+    score: { type: Number, required: false }, // スコア
 });
 
 module.exports = mongoose.model('Property', propertySchema);

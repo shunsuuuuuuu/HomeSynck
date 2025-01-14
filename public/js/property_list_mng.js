@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterBtn = document.getElementById('filterBtn');
     const transferBtn = document.getElementById('calcDistanceBtn');
     const predictBtn = document.getElementById('predictRentBtn');
+    const scoringBtn = document.getElementById('scoringBtn');
     const deleteBtn = document.getElementById('deleteBtn');
 
     // ボタンクリックで物件データを更新する処理
@@ -78,6 +79,18 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingMessage.style.display = 'none';
     });
 
+    // ボタンクリックでスコアリングを実行する処理
+    scoringBtn.addEventListener('click', async () => {
+        const loadingMessage = document.getElementById('scoringLoadingMessage');
+        loadingMessage.style.display = 'block';
+        loadingMessage.textContent = 'スコアリングを実行しています...';
+
+        const filteredProperties = await getFilteredProperties();
+        await scoring(filteredProperties);
+        displaySortedProperties();
+        loadingMessage.style.display = 'none';
+    });
+
     // ボタンクリックで物件データを削除する処理
     deleteBtn.addEventListener('click', async () => {
         const response = await fetch('/api/properties/delete-all-properties', {
@@ -130,6 +143,24 @@ async function predictRentalFee(properties) {
     }
 }
 
+// スコア算出する関数
+async function scoring(properties) {
+    const response = await fetch('/api/properties/scoring', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(properties)
+    });
+    if (response.ok) {
+        // const result = await response.json();
+        // console.log(`-> スコア: ${result.data.score}`);
+    }
+    else {
+        throw new Error(`スコアの算出に失敗しました: ${response.statusText}`);
+    }
+}
+
 // 物件データを表示する関数
 async function displayAllProperties() {
     const response = await fetch('/api/properties/get-all-properties');
@@ -144,8 +175,23 @@ async function displayAllProperties() {
 export async function displayFilteredProperties() {
     const filteredProperties = await getFilteredProperties();
     displayPropertyList(filteredProperties);
+
+    // 物件数を計上
     const propertyCountElement = document.getElementById('propertyCount');
     const propatyCount = filteredProperties.length;
+    propertyCountElement.textContent = "物件一覧 (" + propatyCount + "件)";
+}
+
+// フィルタリングされた物件データをスコアでソートして表示する関数
+export async function displaySortedProperties() {
+    const filteredProperties = await getFilteredProperties();
+    // scoreが高い順にソート
+    const sortedProperties = filteredProperties.sort((a, b) => b.score - a.score);
+    displayPropertyList(sortedProperties);
+
+    // 物件数を計上
+    const propertyCountElement = document.getElementById('propertyCount');
+    const propatyCount = sortedProperties.length;
     propertyCountElement.textContent = "物件一覧 (" + propatyCount + "件)";
 }
 
@@ -189,6 +235,7 @@ function displayPropertyList(properties) {
                 <th class="highlight1-header">乗り換え回数</th>
                 <th class="highlight2-header">予測家賃(万円)</th>
                 <th class="highlight2-header">差分(万円)</th>
+                <th class="highlight3-header">スコア</th>
             </tr>
         `;
     table.appendChild(thead);
@@ -207,6 +254,7 @@ function displayPropertyList(properties) {
                 <td class="highlight1">${property.transfer_count === 0 ? 0 : property.transfer_count || '-'}</td>
                 <td class="highlight2">${property.monthly_fee_pred || '-'}</td>
                 <td class="highlight2">${property.monthly_fee_gap === 0 ? 0 : property.monthly_fee_gap || '-'}</td>
+                <td class="highlight3">${property.score === 0 ? 0 : property.score || '-'}</td>
             `;
         tbody.appendChild(row);
     });
