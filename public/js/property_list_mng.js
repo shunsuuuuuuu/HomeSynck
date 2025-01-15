@@ -244,7 +244,7 @@ function displayPropertyList(properties) {
     properties.forEach(property => {
         const row = document.createElement('tr');
         row.innerHTML = `
-                <td>${property.name || '物件名なし'}</td>
+                <td><a href="${property.url || '#'}" target="_blank">${property.name || '物件名なし'}</a></td>
                 <td>${property.monthly_fee || '-'}</td>
                 <td>${property.address || '-'}</td>
                 <td>${property.access || '-'}</td>

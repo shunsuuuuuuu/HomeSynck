@@ -128,6 +128,7 @@ destinationInput {
     border-collapse: collapse;
     margin-bottom: 20px;
     font-size: 14px;
+    table-layout: fixed;
 }
 
 .property-table thead {
@@ -139,6 +140,9 @@ destinationInput {
     padding: 5px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .property-table th {
