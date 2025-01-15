@@ -31,43 +31,65 @@ exports.deleteAllProperties = async (req, res) => {
 };
 
 // 物件データを取得してDBに保存
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 exports.fetchPropertyInfo = async (req, res) => {
     const url = req.params.url;
-    console.log(`Updating property info from URL : ${url}`);
+    console.log(`Updating property info from URL: ${url}`);
+
     try {
-        // Pythonスクリプトを実行して物件データを取得
         console.log(`Executing Python script`);
-        // Pythonスクリプトを実行
-        exec(`python3 pycode/fetchPropertyInfo.py "${url}"`, async (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error executing Python script: ${error.message}`);
-                return res.status(500).json({ success: false, message: 'Pythonスクリプトの実行に失敗しました' });
+
+        // Pythonスクリプトの実行
+        const pythonProcess = spawn('python3', ['pycode/fetchPropertyInfo.py', url]);
+
+        let outputData = '';
+        let errorData = '';
+
+        // 標準出力を収集
+        pythonProcess.stdout.on('data', (data) => {
+            outputData += data.toString();
+        });
+
+        // 標準エラー出力を収集
+        pythonProcess.stderr.on('data', (data) => {
+            errorData += data.toString();
+        });
+
+        // スクリプト終了時の処理
+        pythonProcess.on('close', async (code) => {
+            if (code !== 0) {
+                console.error(`Python script exited with code ${code}`);
+                return res.status(500).json({ success: false, message: 'Pythonスクリプトが異常終了しました' });
             }
 
-            if (stderr) {
-                console.error(`Python script stderr: ${stderr}`);
+            if (errorData) {
+                console.error(`Python script stderr: ${errorData}`);
                 return res.status(500).json({ success: false, message: 'Pythonスクリプトのエラー' });
             }
 
-            // Pythonスクリプトからの標準出力をJSONとしてパース
-            const properties = JSON.parse(stdout);
+            try {
+                // Pythonスクリプトからの標準出力をJSONとしてパース
+                const properties = JSON.parse(outputData);
 
-            // 物件データをMongoDBに挿入
-            const docs = await Property.insertMany(properties);
-            const insertedProperties = await Property.find();
-            console.log('Num of properties inserted:', insertedProperties.length);
-            res.status(200).json({ success: true, message: '物件データが保存されました！', data: docs });
+                // 物件データをMongoDBに挿入
+                const docs = await Property.insertMany(properties);
+                const insertedProperties = await Property.find();
+                console.log('Num of properties inserted:', insertedProperties.length);
+                res.status(200).json({ success: true, message: '物件データが保存されました！', data: docs });
 
+            } catch (parseError) {
+                console.error(`Error parsing JSON: ${parseError.message}`);
+                res.status(500).json({ success: false, message: 'Pythonスクリプト出力のパースに失敗しました' });
+            }
         });
 
     } catch (error) {
+        console.error(`Unexpected error: ${error.message}`);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
 // 乗り換え情報を取得
-const { spawn } = require('child_process');
 prev_address = '';
 prev_result = '';
 exports.getTransferInfo = async (req, res) => {
