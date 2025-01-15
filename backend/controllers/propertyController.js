@@ -211,12 +211,12 @@ exports.predictRentalFee = async (req, res) => {
 
 // スコアリング
 exports.scoring = async (req, res) => {
-    console.log("Scoring.");
+    const { properties, weights } = req.body;
+    console.log("Calculate Score with weight:", JSON.stringify(weights, null, 2));
     try {
         // Pythonスクリプトを実行してスコアリング
-        const properties = req.body;
         const pythonProcess = spawn('python3', ['./pycode/calcScore.py']);
-        pythonProcess.stdin.write(JSON.stringify(properties));
+        pythonProcess.stdin.write(JSON.stringify(req.body));
         pythonProcess.stdin.end();
 
         // Pythonスクリプトの出力を処理
@@ -236,7 +236,6 @@ exports.scoring = async (req, res) => {
                 try {
                     // スコアリング結果をMongoDBに追加
                     const results = JSON.parse(output);
-                    // スコアリング結果をMongoDBに追加
                     for (let i = 0; i < properties.length; i++) {
                         const property = await Property.findOne({ id: properties[i].id });
                         if (property) {

@@ -7,16 +7,7 @@ import numpy as np
 # %% スコアリング 
 import statistics as stat
 
-def calc_score(data):
-    # スコアリング対象の項目
-    weights = {
-        "rental_fee": 1,
-        "monthly_fee_gap": 1,
-        "floor_area": 1,
-        "build_age": 1,
-        "distance_to_station": 1,
-        "transfer_time": 1,
-    }
+def calc_score(data, weights):
 
     target_cols = list(weights.keys())
     target_weights = list(weights.values())
@@ -30,7 +21,7 @@ def calc_score(data):
         # 全体平均に対してどれだけ高いか低いか（差分）を評価する
         # 差分は標準偏差で割って正規化することで、Total Scoreを算出できるようにする
         data[tag_col + "_score"] = [
-            round((inv * w * (ave_ - val) / (std_ + 0.001)), 3) for val in data[tag_col]
+            round((inv * float(w) * (ave_ - val) / (std_ + 0.001)), 3) for val in data[tag_col]
         ]
         target_cols_score.append(tag_col + "_score")
 
@@ -48,7 +39,9 @@ def calc_score(data):
 def main():
     # 標準入力からデータを受け取る
     input_data = sys.stdin.read()
-    properties = json.loads(input_data)
+    data = json.loads(input_data)
+    properties = data['properties']
+    weights = data['weights']
     properties = pd.DataFrame(properties)
 
     # # デバッグ用: JSONファイルからデータを読み込む
@@ -56,7 +49,7 @@ def main():
     #     data_dict = json.load(f)
     # properties = pd.DataFrame(data_dict['data'])
 
-    scored_data = calc_score(properties)
+    scored_data = calc_score(properties, weights)
 
     # スコアリング結果を標準出力に出力
     print(scored_data.to_json(orient="records", indent=2))

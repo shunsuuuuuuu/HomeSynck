@@ -85,8 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingMessage.style.display = 'block';
         loadingMessage.textContent = 'スコアリングを実行しています...';
 
+        const weights = {
+            rental_fee: document.getElementById('weight-fee').value,
+            monthly_fee_gap: document.getElementById('weight-fee-gap').value,
+            floor_area: document.getElementById('weight-area').value,
+            build_age: document.getElementById('weight-age').value,
+            distance_to_station: document.getElementById('weight-distance').value,
+            transfer_time: document.getElementById('weight-commute').value
+        };
+
         const filteredProperties = await getFilteredProperties();
-        await scoring(filteredProperties);
+        await scoring(filteredProperties, weights);
         displaySortedProperties();
         loadingMessage.style.display = 'none';
     });
@@ -144,13 +153,17 @@ async function predictRentalFee(properties) {
 }
 
 // スコア算出する関数
-async function scoring(properties) {
-    const response = await fetch('/api/properties/scoring', {
+async function scoring(properties, weights) {
+    const requestBody = {
+        properties: properties,
+        weights: weights
+    };
+    const response = await fetch(`/api/properties/scoring`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(properties)
+        body: JSON.stringify(requestBody)
     });
     if (response.ok) {
         // const result = await response.json();
@@ -216,6 +229,7 @@ async function getFilteredProperties() {
 };
 
 function displayPropertyList(properties) {
+    properties = properties.slice(0, 100);
     const propertiesList = document.getElementById('propertiesList');
     propertiesList.innerHTML = '';
 
