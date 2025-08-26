@@ -8,7 +8,13 @@ source ./venv/bin/activate
 pip install -r requirements.txt
 ```
 
-# 実行方法
+# Webアプリで使う方法
+```bash
+npm install express
+node backend/app.js
+```
+
+# スクリプトを実行する使い方
 ## 手順1：スクレイピングで物件データを取得
 スーモの物件一覧ページから物件データをスクレイピングし、家賃や築年数などの情報を数値データに変換します。
 ```
